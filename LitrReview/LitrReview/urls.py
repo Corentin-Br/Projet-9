@@ -25,4 +25,5 @@ urlpatterns = [
     path('', RedirectView.as_view(url='review/feed', permanent=True)),
     path('accounts/', include('django.contrib.auth.urls')),
     path('accounts/logout', include('django.contrib.auth.urls'), name='logout')
-] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) \
+              + static (settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
