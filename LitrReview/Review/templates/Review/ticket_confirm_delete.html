@@ -1,0 +1,16 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+
+<h1>Supprimer votre ticket</h1>
+
+<p>Êtes-vous sûr de vouloir supprimer le ticket suivant?</p>
+
+{% include './ticket.html' %}
+
+<form action="" method="POST">
+  {% csrf_token %}
+  <input type="submit" value="Oui, supprimer">
+</form>
+
+{% endblock %}

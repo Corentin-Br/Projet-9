@@ -1,0 +1,22 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+
+<div>
+    <div>
+        <p>Inscrivez-vous maintenant</p>
+        <button><a href="{% url 'register' %}">S'inscrire</a></button>
+    </div>
+    <div>
+        <p>Connectez-vous</p>
+        <form method="post" action="{% url 'login' %}">
+          {% csrf_token %}
+          <table>
+              {{ form.as_table }}
+          </table>
+          <input type="submit" value="Se connecter"/>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

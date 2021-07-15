@@ -1,0 +1,12 @@
+<table>
+    <tr>
+        <td>{{ followed.username }} </td>
+        <td>
+            <form action="" method="post">
+                    {% csrf_token %}
+                <input type="hidden" name="follow_to_remove" value="{{ followed.username }}">
+                <input type="submit" value="Se désabonner">
+            </form>
+        </td>
+    </tr>
+</table>

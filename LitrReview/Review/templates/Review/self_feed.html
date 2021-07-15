@@ -1,0 +1,10 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+    <p>Vos posts</p>
+    {% if feed %}
+        {% include './feed.html' %}
+    {% else %}
+        <p>Vous n'avez aucun post.</p>
+    {% endif %}
+{% endblock %}

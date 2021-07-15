@@ -1,0 +1,8 @@
+{% include './ticket.html' %}
+{% if not ticket.review %}
+    <a href="{% url 'review-create-with-ticket' pk=ticket.pk %}">Créer une critique</a>
+{% endif %}
+{% if ticket.user == user %}
+    <a href="{% url 'edit-ticket' pk=ticket.pk %}">Modifier</a>
+    <a href="{% url 'remove-ticket' pk=ticket.pk %}">Supprimer</a>
+{% endif %}

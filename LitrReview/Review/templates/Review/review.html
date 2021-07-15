@@ -1,0 +1,15 @@
+{% if user == review.user %}
+    <p>Vous avez publié une critique</p>
+{% else %}
+    <p> {{ review.user }} a publié une critique</p>
+{% endif %}
+<p>{{ review.time_created }}</p>
+<p>{{ review.headline }} - <span class="rating">{{ review.rating }}</span></p>
+<p>{{ review.body }}</p>
+<div>
+    {% include './ticket.html' with ticket=review.ticket %}
+</div>
+{% if review.user == user %}
+    <a href="{% url 'edit-review' pk=review.pk %}">Modifier</a>
+    <a href="{% url 'remove-review' pk=review.pk %}">Supprimer</a>
+{% endif %}

@@ -1,0 +1,11 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+    <a href="{% url 'ticket-create' %}">Demander une critique</a>
+    <a href="{% url 'review-create' %}">Créer une critique</a>
+    {% if feed %}
+        {% include './feed.html' %}
+    {% else %}
+        <p>Vous n'avez ni critique ni ticket dans votre flux.</p>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,12 @@
+{% if user == ticket.user %}
+    <p>Vous avez demandé une critique</p>
+{% else %}
+    <p>{{ ticket.user }} a demandé une critique</p>
+{% endif %}
+<p>{{ ticket.title }}</p>
+<p>{{ ticket.time_created }}</p>
+<p>{{ ticket.description }}</p>
+{% if ticket.image %}
+    {% load static %}
+    <img src="{% static ticket.image.url %}" alt="{{ ticket.image.name }}">
+{% endif %}
