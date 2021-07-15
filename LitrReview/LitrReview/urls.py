@@ -22,7 +22,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('review/', include('Review.urls')),
-    path('', RedirectView.as_view(url='Review/', permanent=True)),
+    path('', RedirectView.as_view(url='review/feed', permanent=True)),
     path('accounts/', include('django.contrib.auth.urls')),
     path('accounts/logout', include('django.contrib.auth.urls'), name='logout')
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
