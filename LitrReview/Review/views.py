@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import ValidationError
 from django.db.models import CharField, Value, Q
 from django.views import generic
@@ -13,7 +14,7 @@ from .models import Review, Ticket, UserFollows
 from .forms import RegisterForm, TicketForm, ReviewForm, FollowForm
 
 
-class FeedView(generic.ListView):
+class FeedView(LoginRequiredMixin, generic.ListView):
     paginate_by = 5
     context_object_name = 'feed'
 
@@ -34,7 +35,7 @@ class FeedView(generic.ListView):
     template_name = 'review/full_feed.html'
 
 
-class SelfFeedView(generic.ListView):
+class SelfFeedView(LoginRequiredMixin, generic.ListView):
     paginate_by = 5
     context_object_name = 'feed'
 
@@ -69,7 +70,7 @@ def register(request):
     return render(request, 'register.html', context)
 
 
-class TicketCreate(CreateView):
+class TicketCreate(LoginRequiredMixin, CreateView):
     form_class = TicketForm
     template_name = "Review/ticket_form.html"
     success_url = reverse_lazy("feed")
@@ -80,7 +81,7 @@ class TicketCreate(CreateView):
         return super().form_valid(form)
 
 
-class ReviewCreate(CreateView):
+class ReviewCreate(LoginRequiredMixin, CreateView):
     form_class = ReviewForm
     template_name = "Review/review_form.html"
     success_url = reverse_lazy("feed")
@@ -97,11 +98,18 @@ class ReviewCreate(CreateView):
         return super().form_valid(form)
 
 
-class ReviewUpdate(UpdateView):
+class ReviewUpdate(LoginRequiredMixin, UpdateView):
     model = Review
     form_class = ReviewForm
     template_name = "Review/review_edit_form.html"
     success_url = reverse_lazy("feed")
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if self.object.user == request.user:
+            return super().get(request, *args, **kwargs)
+        else:
+            raise PermissionError
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -109,25 +117,45 @@ class ReviewUpdate(UpdateView):
         return context
 
 
-class TicketUpdate(UpdateView):
+class TicketUpdate(LoginRequiredMixin, UpdateView):
     model = Ticket
     form_class = TicketForm
     template_name = "Review/ticket_edit_form.html"
     success_url = reverse_lazy("feed")
 
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if self.object.user == request.user:
+            return super().get(request, *args, **kwargs)
+        else:
+            raise PermissionError
 
-class ReviewDelete(DeleteView):
+
+class ReviewDelete(LoginRequiredMixin, DeleteView):
     model = Review
     success_url = reverse_lazy("feed")
 
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if self.object.user == request.user:
+            return super().post(self, request, *args, **kwargs)
+        else:
+            raise PermissionError
 
-class TicketDelete(DeleteView):
+
+class TicketDelete(LoginRequiredMixin, DeleteView):
     model = Ticket
     success_url = reverse_lazy("feed")
 
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if self.object.user == request.user:
+            return super().post(self, request, *args, **kwargs)
+        else:
+            raise PermissionError
 
 
-class ReviewAndTicketCreate(TemplateView):
+class ReviewAndTicketCreate(LoginRequiredMixin, TemplateView):
     template_name = "Review/review_form.html"
     success_url = reverse_lazy("feed")
 
@@ -162,7 +190,7 @@ class ReviewAndTicketCreate(TemplateView):
         return HttpResponseRedirect(reverse_lazy("feed"))
 
 
-class FollowView(TemplateView):
+class FollowView(LoginRequiredMixin, TemplateView):
     template_name = "Review/follow.html"
     success_url = reverse_lazy("follows")
 
