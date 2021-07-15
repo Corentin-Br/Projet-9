@@ -17,11 +17,15 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('register', views.register, name='register'),
-    path('register', views.register, name='feed'),
-    path('register', views.register, name='posts'),
-    path('register', views.register, name='follows'),
+    path('register/', views.register, name='register'),
+    path('feed/', views.FeedView.as_view(), name='feed'),
+    path('posts', views.SelfFeedView.as_view(), name='posts'),
+    path('follow/', views.FollowView.as_view(), name='follows'),
     path('ticket-creation/', views.TicketCreate.as_view(), name='ticket-create'),
     path('review-creation/', views.ReviewAndTicketCreate.as_view(), name='review-create'),
     path('review-creation/<int:pk>', views.ReviewCreate.as_view(), name='review-create-with-ticket'),
+    path('review-edit/<int:pk>', views.ReviewUpdate.as_view(), name='edit-review'),
+    path('review-delete/<int:pk>', views.ReviewDelete.as_view(), name='remove-review'),
+    path('ticket-edit/<int:pk>', views.TicketUpdate.as_view(), name='edit-ticket'),
+    path('ticket-delete/<int:pk>', views.TicketDelete.as_view(), name='remove-ticket'),
 ]
