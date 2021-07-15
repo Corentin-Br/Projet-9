@@ -8,9 +8,11 @@ from .models import Ticket, Review, UserFollows
 class TicketAdmin(admin.ModelAdmin):
     list_display = ["title", "description", "user", "image", "time_created"]
 
+
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
-    list_display = ["ticket", "rating", "headline", "body"]
+    list_display = ["ticket", "rating", "headline", "body", "user"]
+
 
 @admin.register(UserFollows)
 class FollowAdmin(admin.ModelAdmin):
