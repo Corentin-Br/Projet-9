@@ -1,29 +1,56 @@
 from django.core.exceptions import ValidationError
-from django.core.validators import validate_image_file_extension, get_available_image_extensions
+from django.db.models import CharField, Value, Q
 from django.views import generic
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django.contrib.auth.models import User
-from django.views.generic import CreateView, TemplateView, FormView
-from django.template import loader
-from django.views import View
-from django.core.files.uploadedfile import SimpleUploadedFile
+from django.views.generic import CreateView, TemplateView, UpdateView, DeleteView
 
-from .models import Review, Ticket
-from .forms import RegisterForm, TicketForm, ReviewForm
+from itertools import chain
+
+from .models import Review, Ticket, UserFollows
+from .forms import RegisterForm, TicketForm, ReviewForm, FollowForm
 
 
-class ReviewListView(generic.ListView):
-    model = Review
+class FeedView(generic.ListView):
     paginate_by = 5
-    context_object_name = 'review_list'
+    context_object_name = 'feed'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return context
+    def get_queryset(self, **kwargs):
+        follows = [follow.followed_user for follow in UserFollows.objects.filter(user=self.request.user)]
 
-    template_name = 'review/review.html'
+        reviews = Review.objects.filter(Q(user=self.request.user) | Q(user__in=follows))
+        reviews = reviews.annotate(content_type=Value('REVIEW', CharField()))
+        tickets = Ticket.objects.filter(Q(user=self.request.user) | Q(user__in=follows))
+        tickets = tickets.annotate(content_type=Value('TICKET', CharField()))
+
+        posts = sorted(
+            chain(reviews, tickets),
+            key=lambda post: post.time_created,
+            reverse=True)
+        return posts
+
+    template_name = 'review/full_feed.html'
+
+
+class SelfFeedView(generic.ListView):
+    paginate_by = 5
+    context_object_name = 'feed'
+
+    def get_queryset(self, **kwargs):
+        reviews = Review.objects.filter(user=self.request.user)
+        reviews = reviews.annotate(content_type=Value('REVIEW', CharField()))
+        tickets = Ticket.objects.filter(user=self.request.user)
+        tickets = tickets.annotate(content_type=Value('TICKET', CharField()))
+
+        posts = sorted(
+            chain(reviews, tickets),
+            key=lambda post: post.time_created,
+            reverse=True)
+        return posts
+
+    template_name = 'review/self_feed.html'
 
 
 def register(request):
@@ -44,8 +71,8 @@ def register(request):
 
 class TicketCreate(CreateView):
     form_class = TicketForm
-    success_url = reverse_lazy("ticket-create")
     template_name = "Review/ticket_form.html"
+    success_url = reverse_lazy("feed")
 
     def form_valid(self, form):
         form.instance.user = self.request.user
@@ -56,7 +83,7 @@ class TicketCreate(CreateView):
 class ReviewCreate(CreateView):
     form_class = ReviewForm
     template_name = "Review/review_form.html"
-    success_url = reverse_lazy("ticket-create")
+    success_url = reverse_lazy("feed")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -70,9 +97,39 @@ class ReviewCreate(CreateView):
         return super().form_valid(form)
 
 
+class ReviewUpdate(UpdateView):
+    model = Review
+    form_class = ReviewForm
+    template_name = "Review/review_edit_form.html"
+    success_url = reverse_lazy("feed")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["ticket"] = get_object_or_404(Ticket, pk=self.kwargs["pk"])
+        return context
+
+
+class TicketUpdate(UpdateView):
+    model = Ticket
+    form_class = TicketForm
+    template_name = "Review/ticket_edit_form.html"
+    success_url = reverse_lazy("feed")
+
+
+class ReviewDelete(DeleteView):
+    model = Review
+    success_url = reverse_lazy("feed")
+
+
+class TicketDelete(DeleteView):
+    model = Ticket
+    success_url = reverse_lazy("feed")
+
+
+
 class ReviewAndTicketCreate(TemplateView):
     template_name = "Review/review_form.html"
-    success_url = reverse_lazy("ticket-create")
+    success_url = reverse_lazy("feed")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -95,14 +152,53 @@ class ReviewAndTicketCreate(TemplateView):
             ticket = ticket_form.save()
             review_form.instance.ticket = ticket
         if not ticket_form.is_valid() or not review_form.is_valid():
-            try:
-                Ticket.delete(Ticket.objects.get(pk=ticket.pk))
-            except KeyError:
-                pass
+            Ticket.objects.filter(pk=ticket.pk).delete()
             context = {
                 'ticket_form': ticket_form,
                 "review_form": review_form
             }
             return render(self.request, 'Review/review_form.html', context)
-        return HttpResponseRedirect(reverse_lazy("ticket-create"))
+        review_form.save()
+        return HttpResponseRedirect(reverse_lazy("feed"))
+
+
+class FollowView(TemplateView):
+    template_name = "Review/follow.html"
+    success_url = reverse_lazy("follows")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        followed = [follow.followed_user for follow in UserFollows.objects.filter(user=self.request.user)]
+        follower = [follow.user for follow in UserFollows.objects.filter(followed_user=self.request.user)]
+        context["user_followed"] = followed
+        context["user_followers"] = follower
+        context["form"] = FollowForm
+        return context
+
+    def post(self, *args, **kwargs):
+        content = self.request.POST
+        if "follow_to_remove" in content:
+            UserFollows.objects.filter(user=self.request.user,
+                                       followed_user__username=content["follow_to_remove"]).delete()
+            context = self.get_context_data()
+            context["has_deleted"] = True
+            return render(self.request, 'Review/follow.html', context)
+        else:
+            form = FollowForm({"followed_user": content["followed_user"]})
+            form.instance.user = self.request.user
+            form.instance.followed_user = User.objects.get(username=content["followed_user"])
+            if form.is_valid():
+                if form.instance.user == User.objects.get(username=content["followed_user"]):
+                    form.add_error("followed_user", ValidationError("Vous ne pouvez pas vous suivre vous-même!",
+                                                               code="User follows themselves"))
+                elif UserFollows.objects.filter(user=self.request.user,
+                                                followed_user__username=content["followed_user"]).exists():
+                    form.add_error("followed_user", ValidationError("Vous suivez déjà cette personne!",
+                                                               code="User follows already"))
+                else:
+                    form.save()
+                    return HttpResponseRedirect(reverse_lazy("follows"))
+            context = self.get_context_data()
+            context["form"] = form
+            return render(self.request, 'Review/follow.html', context)
 
