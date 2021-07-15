@@ -1,9 +1,10 @@
 from django import forms
+from django.db import models
 from django.forms.widgets import PasswordInput
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 
-from .models import Ticket, Review
+from .models import Ticket, Review, UserFollows
 
 
 class RegisterForm(forms.Form):
@@ -55,4 +56,24 @@ class ReviewForm(forms.ModelForm):
     class Meta:
         model = Review
         fields = ["headline", "rating", "body"]
+
+
+class FollowForm(forms.ModelForm):
+    followed_user = forms.CharField(min_length=5,
+                                    max_length=32,
+                                    label="Nom d'utilisateur",
+                                    help_text="Entrez le nom qui vous servira à vous connecter, sa longueur doit être "
+                                              "comprise entre 5 et 32 caractères")
+
+    class Meta:
+        model = UserFollows
+        exclude = ["user", "followed_user"]
+
+    def clean(self):
+        data = super().clean()
+        username = data.get("followed_user")
+        if not User.objects.filter(username=username).exists():
+            self.add_error("followed_user", ValidationError("Cet utilisateur n'existe pas!",
+                                                            code="User follows invalid user"))
+        return data
 
