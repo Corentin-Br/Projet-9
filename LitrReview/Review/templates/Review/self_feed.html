@@ -1,10 +1,14 @@
 {% extends "base_generic.html" %}
 
 {% block content %}
-    <p>Vos posts</p>
+    <div class="container-fluid d-flex justify-content-center">
+        <p class="fs-4">Vos posts</p>
+    </div>
     {% if feed %}
         {% include './feed.html' %}
     {% else %}
-        <p>Vous n'avez aucun post.</p>
+        <div class="container-fluid d-flex justify-content-center mt-5">
+            <p class="h1">Vous n'avez aucun post.</p>
+        </div>
     {% endif %}
 {% endblock %}

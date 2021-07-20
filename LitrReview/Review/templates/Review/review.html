@@ -1,15 +1,37 @@
-{% if user == review.user %}
-    <p>Vous avez publié une critique</p>
-{% else %}
-    <p> {{ review.user }} a publié une critique</p>
-{% endif %}
-<p>{{ review.time_created }}</p>
-<p>{{ review.headline }} - <span class="rating">{{ review.rating }}</span></p>
-<p>{{ review.body }}</p>
-<div>
-    {% include './ticket.html' with ticket=review.ticket %}
+<div class="container border border-dark">
+    <div>
+        <div class="container mt-3">
+            <p class="float-end">{{ review.time_created }}</p>
+        </div>
+        {% if user == review.user %}
+            <p>Vous avez publié une critique</p>
+        {% else %}
+            <p> {{ review.user }} a publié une critique</p>
+        {% endif %}
+        {% load static %}
+        <p class="fs-4">{{ review.headline }} - <img src="{{ static }}/static/rating-{{ review.rating }}.svg/" alt="note"></p>
+        <p>{{ review.body }}</p>
+    </div>
+    <div class="container border border-dark">
+        {% if user == review.ticket.user %}
+            <p>Ticket - Vous</p>
+        {% else %}
+            <p>Ticket - {{ review.ticket.user }}</p>
+        {% endif %}
+        {% include './ticket_in_review.html' with ticket=review.ticket %}
+    </div>
+    {% if review.user == user %}
+        <div class="container">
+            <div class="row my-1">
+               <div class="col-6 col-md-8 col-xl-10"></div>
+                <div class="col-3 col-md-2 col-xl-1">
+                    <button class="float-end"><a class="text-decoration-none text-reset" href="{% url 'edit-review' pk=review.pk %}">Modifier</a></button>
+                </div>
+                <div class="col-3 col-md-2 col-xl-1">
+                    <button class="float-end"><a class="text-decoration-none text-reset" href="{% url 'remove-review' pk=review.pk %}">Supprimer</a></button>
+                </div>
+            </div>
+
+        </div>
+    {% endif %}
 </div>
-{% if review.user == user %}
-    <a href="{% url 'edit-review' pk=review.pk %}">Modifier</a>
-    <a href="{% url 'remove-review' pk=review.pk %}">Supprimer</a>
-{% endif %}

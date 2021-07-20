@@ -1,12 +1,7 @@
-{% extends 'base_generic.html' %}
-
-{% block content %}
-    <p>Créer un ticket</p>
-    <form enctype="multipart/form-data" action="" method="post">
-        {% csrf_token %}
-        <table>
-            {{ form.as_table }}
-        </table>
-        <input type="submit" value="Envoyer">
-    </form>
-{% endblock %}
+ <form enctype="multipart/form-data" action="" method="post">
+    {% csrf_token %}
+    <table class="table my-3">
+        {{ form.as_table }}
+    </table>
+    <input class="float-end" type="submit" value="Envoyer">
+ </form>

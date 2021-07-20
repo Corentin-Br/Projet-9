@@ -1,0 +1,43 @@
+{% if ticket %}
+    <div class="container border border-dark p-1 mx-3">
+        <p>Vous êtes en train de poster en réponse à</p>
+        <div class="border border-dark m-5 p-1">
+                <div class="container">
+                    <p class="mt-3 float-end">{{ ticket.time_created }}</p>
+                </div>
+                {% if user == ticket.user %}
+                    <p>Vous avez demandé une critique</p>
+                {% else %}
+                    <p>{{ ticket.user }} a demandé une critique</p>
+                {% endif %}
+            {% include './ticket.html' with ticket=ticket %}
+        </div>
+    </div>
+    <form class="container px-1" action="" method="post">
+        {% csrf_token %}
+        <div class="border border-dark p-1">
+            <p>Critique</p>
+            <table class="table p-1">
+                {{ form.as_table }}
+            </table>
+        </div>
+        <input class="float-end my-1" type="submit" value="envoyer">
+    </form>
+{% else %}
+    <form class="container px-1" enctype="multipart/form-data" action="" method="post">
+        {% csrf_token %}
+        <div class="border border-dark p-1">
+            <p>Livre/Article</p>
+            <table class="table">
+                {{ ticket_form.as_table }}
+            </table>
+        </div>
+        <div class="border border-dark p-1">
+            <p>Critique</p>
+            <table class="table">
+                    {{ review_form.as_table }}
+            </table>
+        </div>
+        <input class="float-end my-1" type="submit" value="envoyer">
+    </form>
+{% endif %}

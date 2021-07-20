@@ -1,7 +1,11 @@
 {% for post in feed %}
     {% if post.content_type == 'TICKET' %}
-        {% include './ticket_in_feed.html' with ticket=post %}
+        <div class="mt-3">
+            {% include './ticket_in_feed.html' with ticket=post %}
+        </div>
     {% elif post.content_type == 'REVIEW' %}
-        {% include './review.html' with review=post %}
+        <div class="mt-3">
+            {% include './review.html' with review=post %}
+        </div>
     {% endif %}
 {% endfor %}

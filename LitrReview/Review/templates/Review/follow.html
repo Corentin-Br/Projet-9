@@ -1,22 +1,29 @@
 {% extends 'base_generic.html' %}
 
 {% block content %}
-<p>Suivre d'autres utilisateurs</p>
-<form action="" method="post">
-        {% csrf_token %}
-            <table>
-                {{ form.as_table }}
-            </table>
-    <input type="submit" value="Envoyer" />
-</form>
+<div class="d-flex flex-column align-items-center">
+    <p>Suivre d'autres utilisateurs</p>
+        <form class="mb-3" action="" method="post">
+                {% csrf_token %}
+                <div class="d-flex flex-row">
+                    <table>
+                        {{ form.as_table }}
+                    </table>
+                    <input class="ms-1" type="submit" value="Envoyer" />
+                </div>
+        </form>
 
-<p>Abonnements</p>
-{% for followed in user_followed %}
-    {% include './followed.html' with followed=followed %}
-{% endfor %}
+    <p>Abonnements</p>
+        {% for followed in user_followed %}
+            {% include './followed.html' with followed=followed %}
+        {% endfor %}
 
-<p>Abonnés</p>
-{% for follower in user_followers %}
-    {% include './follower.html' with follower=follower %}
-{% endfor %}
+
+
+
+    <p>Abonnés</p>
+    {% for follower in user_followers %}
+        {% include './follower.html' with follower=follower %}
+    {% endfor %}
+</div>
 {% endblock %}

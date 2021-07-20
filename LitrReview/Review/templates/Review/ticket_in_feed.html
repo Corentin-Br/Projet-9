@@ -1,8 +1,35 @@
+<div class="container border border-dark">
+    <div class="container">
+        <p class="mt-3 float-end">{{ ticket.time_created }}</p>
+    </div>
+    {% if user == ticket.user %}
+        <p>Vous avez demandé une critique</p>
+    {% else %}
+        <p>{{ ticket.user }} a demandé une critique</p>
+    {% endif %}
+
 {% include './ticket.html' %}
-{% if not ticket.review %}
-    <a href="{% url 'review-create-with-ticket' pk=ticket.pk %}">Créer une critique</a>
-{% endif %}
-{% if ticket.user == user %}
-    <a href="{% url 'edit-ticket' pk=ticket.pk %}">Modifier</a>
-    <a href="{% url 'remove-ticket' pk=ticket.pk %}">Supprimer</a>
-{% endif %}
+    <div class="container">
+        <div class="row my-1">
+            <div class="col-6 col-md-8 col-xl-10">
+                {% if not ticket.review %}
+                    <button class="float-end">
+                        <a class="text-decoration-none text-reset" href="{% url 'review-create-with-ticket' pk=ticket.pk %}">Créer une critique</a>
+                    </button>
+                {% endif %}
+            </div>
+            {% if ticket.user == user %}
+            <div class="col-3 col-md-2 col-xl-1">
+                <button class="float-end">
+                    <a class="text-decoration-none text-reset" href="{% url 'edit-ticket' pk=ticket.pk %}">Modifier</a>
+                </button>
+            </div>
+            <div class="col-3 col-md-2 col-xl-1">
+                <button class="float-end">
+                    <a class="text-decoration-none text-reset" href="{% url 'remove-ticket' pk=ticket.pk %}">Supprimer</a>
+                </button>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
