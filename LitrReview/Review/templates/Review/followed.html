@@ -1,7 +1,7 @@
 <table class="table-bordered container-fluid">
-    <tr class="row mx-3">
-        <td class="col-8 col-md-10">{{ followed.username }} </td>
-        <td class="col-4 col-md-2">
+    <tr>
+        <td class="col-8 col-md-10 col-xl-11 px-1">{{ followed.username }} </td>
+        <td class="col-4 col-md-2 col-xl-1 px-1">
             <form class="float-end" action="" method="post">
                     {% csrf_token %}
                 <input type="hidden" name="follow_to_remove" value="{{ followed.username }}">
