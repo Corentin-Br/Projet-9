@@ -1,20 +1,23 @@
 {% extends "base_generic.html" %}
 
 {% block content %}
-
-<div>
-    <div>
-        <p>Inscrivez-vous maintenant</p>
-        <button><a href="{% url 'register' %}">S'inscrire</a></button>
+<div class="container d-flex justify-content-around">
+    <div class="mt-5">
+        <div class="mt-5 container d-flex flex-column align-items-center">
+            <p>Inscrivez-vous maintenant</p>
+            <button><a class="text-reset text-decoration-none" href="{% url 'register' %}">S'inscrire</a></button>
+        </div>
     </div>
-    <div>
-        <p>Connectez-vous</p>
+    <div class="mt-5">
+        <div class="mb-5 container d-flex justify-content-center">
+            <p>Connectez-vous</p>
+        </div>
         <form method="post" action="{% url 'login' %}">
-          {% csrf_token %}
-          <table>
-              {{ form.as_table }}
-          </table>
-          <input type="submit" value="Se connecter"/>
+            {% csrf_token %}
+            <table>
+                {{ form.as_table }}
+            </table>
+                <input class="float-end my-1" type="submit" value="Se connecter"/>
         </form>
     </div>
 </div>
