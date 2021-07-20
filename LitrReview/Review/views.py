@@ -1,9 +1,9 @@
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ValidationError
 from django.db.models import CharField, Value, Q
 from django.views import generic
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse, reverse_lazy
 from django.contrib.auth.models import User
 from django.views.generic import CreateView, TemplateView, UpdateView, DeleteView
@@ -72,7 +72,7 @@ def register(request):
 
 class TicketCreate(LoginRequiredMixin, CreateView):
     form_class = TicketForm
-    template_name = "Review/ticket_form.html"
+    template_name = "Review/ticket_creation.html"
     success_url = reverse_lazy("feed")
 
     def form_valid(self, form):
@@ -83,7 +83,7 @@ class TicketCreate(LoginRequiredMixin, CreateView):
 
 class ReviewCreate(LoginRequiredMixin, CreateView):
     form_class = ReviewForm
-    template_name = "Review/review_form.html"
+    template_name = "Review/review_creation.html"
     success_url = reverse_lazy("feed")
 
     def get_context_data(self, **kwargs):
@@ -101,7 +101,7 @@ class ReviewCreate(LoginRequiredMixin, CreateView):
 class ReviewUpdate(LoginRequiredMixin, UpdateView):
     model = Review
     form_class = ReviewForm
-    template_name = "Review/review_edit_form.html"
+    template_name = "Review/review_edit.html"
     success_url = reverse_lazy("feed")
 
     def get(self, request, *args, **kwargs):
@@ -109,7 +109,7 @@ class ReviewUpdate(LoginRequiredMixin, UpdateView):
         if self.object.user == request.user:
             return super().get(request, *args, **kwargs)
         else:
-            raise PermissionError
+            return HttpResponse("Vous ne pouvez pas modifier une critique que vous n'avez pas créée.", status=401)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -128,7 +128,7 @@ class TicketUpdate(LoginRequiredMixin, UpdateView):
         if self.object.user == request.user:
             return super().get(request, *args, **kwargs)
         else:
-            raise PermissionError
+            return HttpResponse("Vous ne pouvez pas modifier un ticket que vous n'avez pas créé.", status=401)
 
 
 class ReviewDelete(LoginRequiredMixin, DeleteView):
@@ -140,7 +140,7 @@ class ReviewDelete(LoginRequiredMixin, DeleteView):
         if self.object.user == request.user:
             return super().post(self, request, *args, **kwargs)
         else:
-            raise PermissionError
+            return HttpResponse("Vous ne pouvez pas supprimer une critique que vous n'avez pas créée.", status=401)
 
 
 class TicketDelete(LoginRequiredMixin, DeleteView):
@@ -152,11 +152,11 @@ class TicketDelete(LoginRequiredMixin, DeleteView):
         if self.object.user == request.user:
             return super().post(self, request, *args, **kwargs)
         else:
-            raise PermissionError
+            return HttpResponse("Vous ne pouvez pas supprimer un ticket que vous n'avez pas créé.", status=401)
 
 
 class ReviewAndTicketCreate(LoginRequiredMixin, TemplateView):
-    template_name = "Review/review_form.html"
+    template_name = "Review/review_creation.html"
     success_url = reverse_lazy("feed")
 
     def get_context_data(self, **kwargs):
