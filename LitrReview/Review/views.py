@@ -21,7 +21,7 @@ class FeedView(LoginRequiredMixin, generic.ListView):
     def get_queryset(self, **kwargs):
         follows = [follow.followed_user for follow in UserFollows.objects.filter(user=self.request.user)]
 
-        reviews = Review.objects.filter(Q(user=self.request.user) | Q(user__in=follows))
+        reviews = Review.objects.filter(Q(user=self.request.user) | Q(user__in=follows) | Q(ticket__user=self.request.user))
         reviews = reviews.annotate(content_type=Value('REVIEW', CharField()))
         tickets = Ticket.objects.filter(Q(user=self.request.user) | Q(user__in=follows))
         tickets = tickets.annotate(content_type=Value('TICKET', CharField()))
