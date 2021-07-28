@@ -138,6 +138,13 @@ class ReviewDelete(LoginRequiredMixin, DeleteView):
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
         if self.object.user == request.user:
+            return super().get(self, request, *args, **kwargs)
+        else:
+            return HttpResponse("Vous ne pouvez pas supprimer une critique que vous n'avez pas créée.", status=401)
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if self.object.user == request.user:
             return super().post(self, request, *args, **kwargs)
         else:
             return HttpResponse("Vous ne pouvez pas supprimer une critique que vous n'avez pas créée.", status=401)
@@ -150,10 +157,16 @@ class TicketDelete(LoginRequiredMixin, DeleteView):
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
         if self.object.user == request.user:
-            return super().post(self, request, *args, **kwargs)
+            return super().get(self, request, *args, **kwargs)
         else:
             return HttpResponse("Vous ne pouvez pas supprimer un ticket que vous n'avez pas créé.", status=401)
 
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if self.object.user == request.user:
+            return super().post(self, request, *args, **kwargs)
+        else:
+            return HttpResponse("Vous ne pouvez pas supprimer un ticket que vous n'avez pas créé.", status=401)
 
 class ReviewAndTicketCreate(LoginRequiredMixin, TemplateView):
     template_name = "Review/review_creation.html"
