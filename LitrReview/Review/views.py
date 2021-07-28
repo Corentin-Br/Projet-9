@@ -113,7 +113,7 @@ class ReviewUpdate(LoginRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["ticket"] = get_object_or_404(Ticket, pk=self.kwargs["pk"])
+        context["ticket"] = self.get_object().ticket
         return context
 
 
