@@ -135,7 +135,7 @@ class ReviewDelete(LoginRequiredMixin, DeleteView):
     model = Review
     success_url = reverse_lazy("feed")
 
-    def post(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         self.object = self.get_object()
         if self.object.user == request.user:
             return super().post(self, request, *args, **kwargs)
@@ -147,7 +147,7 @@ class TicketDelete(LoginRequiredMixin, DeleteView):
     model = Ticket
     success_url = reverse_lazy("feed")
 
-    def post(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         self.object = self.get_object()
         if self.object.user == request.user:
             return super().post(self, request, *args, **kwargs)
