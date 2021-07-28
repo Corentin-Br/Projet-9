@@ -1,6 +1,7 @@
 {% extends "base_generic.html" %}
 
 {% block content %}
+<div class="mt-2 d-flex flex-column align-items-center">
 
 <h1>Supprimer votre critique</h1>
 
@@ -8,9 +9,9 @@
 
 {% include './review.html' %}
 
-<form action="" method="POST">
+<form class="mt-2" action="" method="POST">
   {% csrf_token %}
   <input type="submit" value="Oui, supprimer">
 </form>
-
+</div>
 {% endblock %}
